@@ -1,0 +1,25 @@
+#docker run -v "$(pwd):/job" godatadriven/pyspark /job/Entry_Point.py
+
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+
+  postgresql:
+    image: 'bitnami/postgresql:latest'
+    container_name: postgresql-server
+    environment:
+      - POSTGRESQL_USERNAME=my_user
+      - POSTGRESQL_PASSWORD=EncryptMe111
+      - POSTGRESQL_DATABASE=my_database
+    networks:
+      - app-tier
+
+  pyspark:
+    image: 'godatadriven/pyspark'
+    container_name: pyspark-server
+    networks:
+      - app-tier
