@@ -1,4 +1,4 @@
-#docker run -v "$(pwd):/job" godatadriven/pyspark /job/Entry_Point.py
+#docker run -v "$(pwd):/artifacts" godatadriven/pyspark /artifacts/Entry_Point.py
 
 version: '2'
 

@@ -1,0 +1,165 @@
+{
+    "vehicle" : {
+        "update_strategy": "insert_append",
+        "target_path_prefix": "./data/",
+        "source_file_list_actual": [
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0001_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0002_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0003_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0004_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0005_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0006_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0007_part_00.gz"
+        ],
+        "source_file_list": [
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0007_part_00.gz"
+        ],
+        "source_schema": [
+            {
+                "field_name": "country",
+                "field_type": "String"
+            },
+            {
+                "field_name": "vehicle_id",
+                "field_type": "String"
+            },
+            {
+                "field_name": "licence",
+                "field_type": "String"
+            },
+            {
+                "field_name": "make",
+                "field_type": "String"
+            },
+            {
+                "field_name": "model",
+                "field_type": "String"
+            },
+            {
+                "field_name": "type",
+                "field_type": "String"
+            },
+            {
+                "field_name": "trim",
+                "field_type": "String"
+            },
+            {
+                "field_name": "colour",
+                "field_type": "String"
+            },
+            {
+                "field_name": "bodytype",
+                "field_type": "String"
+            },
+            {
+                "field_name": "fueltype",
+                "field_type": "String"
+            },
+            {
+                "field_name": "engine_capacity",
+                "field_type": "String"
+            },
+            {
+                "field_name": "engine_power",
+                "field_type": "String"
+            },
+            {
+                "field_name": "cylindercapacity",
+                "field_type": "String"
+            },
+            {
+                "field_name": "horsepower",
+                "field_type": "String"
+            },
+            {
+                "field_name": "geartype",
+                "field_type": "String"
+            },
+            {
+                "field_name": "number_of_gears",
+                "field_type": "String"
+            },
+            {
+                "field_name": "emission_class",
+                "field_type": "String"
+            },
+            {
+                "field_name": "emission_class_incl_co2",
+                "field_type": "String"
+            },
+            {
+                "field_name": "co2_level_combined",
+                "field_type": "String"
+            },
+            {
+                "field_name": "segmentation",
+                "field_type": "String"
+            },
+            {
+                "field_name": "number_of_doors",
+                "field_type": "String"
+            },
+            {
+                "field_name": "number_of_seats",
+                "field_type": "String"
+            },
+            {
+                "field_name": "milage",
+                "field_type": "String"
+            },
+            {
+                "field_name": "age",
+                "field_type": "String"
+            },
+            {
+                "field_name": "firstuse",
+                "field_type": "String"
+            },
+            {
+                "field_name": "build_year",
+                "field_type": "String"
+            },
+            {
+                "field_name": "amount_damage",
+                "field_type": "String"
+            },
+            {
+                "field_name": "price_class",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_air_conditioning",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_air_conditioning_automatic",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_alloy_wheels",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_automatic_transmission",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_cruise_control",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_heated_seats",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_leather_alcantara",
+                "field_type": "String"
+            },
+            {
+                "field_name": "has_leather_upholstery",
+                "field_type": "String"
+            }
+        ]
+    }
+
+}
