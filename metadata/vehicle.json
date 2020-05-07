@@ -16,148 +16,220 @@
         ],
         "source_schema": [
             {
-                "field_name": "country",
-                "field_type": "String"
+                "source_name": "country",
+                "target_name": "country",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "vehicle_id",
-                "field_type": "String"
+                "source_name": "vehicle_id",
+                "target_name": "vehicle_id",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "licence",
-                "field_type": "String"
+                "source_name": "licence",
+                "target_name": "licence",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "make",
-                "field_type": "String"
+                "source_name": "make",
+                "target_name": "make",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "model",
-                "field_type": "String"
+                "source_name": "model",
+                "target_name": "model",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "type",
-                "field_type": "String"
+                "source_name": "type",
+                "target_name": "type",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "trim",
-                "field_type": "String"
+                "source_name": "trim",
+                "target_name": "trim",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "colour",
-                "field_type": "String"
+                "source_name": "colour",
+                "target_name": "country",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "bodytype",
-                "field_type": "String"
+                "source_name": "bodytype",
+                "target_name": "body_type",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "fueltype",
-                "field_type": "String"
+                "source_name": "fueltype",
+                "target_name": "fuel_type",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "engine_capacity",
-                "field_type": "String"
+                "source_name": "engine_capacity",
+                "target_name": "engine_capacity",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "engine_power",
-                "field_type": "String"
+                "source_name": "engine_power",
+                "target_name": "engine_power",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "cylindercapacity",
-                "field_type": "String"
+                "source_name": "cylindercapacity",
+                "target_name": "cylinder_capacity",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "horsepower",
-                "field_type": "String"
+                "source_name": "horsepower",
+                "target_name": "horsepower",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "geartype",
-                "field_type": "String"
+                "source_name": "geartype",
+                "target_name": "gear_type",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "number_of_gears",
-                "field_type": "String"
+                "source_name": "number_of_gears",
+                "target_name": "number_of_gears",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "emission_class",
-                "field_type": "String"
+                "source_name": "emission_class",
+                "target_name": "emission_class",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "emission_class_incl_co2",
-                "field_type": "String"
+                "source_name": "emission_class_incl_co2",
+                "target_name": "emission_class_incl_co2",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "co2_level_combined",
-                "field_type": "String"
+                "source_name": "co2_level_combined",
+                "target_name": "co2_level_combined",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "segmentation",
-                "field_type": "String"
+                "source_name": "segmentation",
+                "target_name": "segmentation",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "number_of_doors",
-                "field_type": "String"
+                "source_name": "number_of_doors",
+                "target_name": "number_of_doors",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "number_of_seats",
-                "field_type": "String"
+                "source_name": "number_of_seats",
+                "target_name": "number_of_seats",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "milage",
-                "field_type": "String"
+                "source_name": "milage",
+                "target_name": "mileage",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "age",
-                "field_type": "String"
+                "source_name": "age",
+                "target_name": "age",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "firstuse",
-                "field_type": "String"
+                "source_name": "firstuse",
+                "target_name": "first_use",
+                "source_type": "String",
+                "target_type": "Date"
             },
             {
-                "field_name": "build_year",
-                "field_type": "String"
+                "source_name": "build_year",
+                "target_name": "build_year",
+                "source_type": "String",
+                "target_type": "Integer"
             },
             {
-                "field_name": "amount_damage",
-                "field_type": "String"
+                "source_name": "amount_damage",
+                "target_name": "amount_damage",
+                "source_type": "String",
+                "target_type": "Double"
             },
             {
-                "field_name": "price_class",
-                "field_type": "String"
+                "source_name": "price_class",
+                "target_name": "price_class",
+                "source_type": "String",
+                "target_type": "String"
             },
             {
-                "field_name": "has_air_conditioning",
-                "field_type": "String"
+                "source_name": "has_air_conditioning",
+                "target_name": "has_air_conditioning",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_air_conditioning_automatic",
-                "field_type": "String"
+                "source_name": "has_air_conditioning_automatic",
+                "target_name": "has_air_conditioning_automatic",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_alloy_wheels",
-                "field_type": "String"
+                "source_name": "has_alloy_wheels",
+                "target_name": "has_alloy_wheels",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_automatic_transmission",
-                "field_type": "String"
+                "source_name": "has_automatic_transmission",
+                "target_name": "has_automatic_transmission",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_cruise_control",
-                "field_type": "String"
+                "source_name": "has_cruise_control",
+                "target_name": "has_cruise_control",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_heated_seats",
-                "field_type": "String"
+                "source_name": "has_heated_seats",
+                "target_name": "has_heated_seats",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_leather_alcantara",
-                "field_type": "String"
+                "source_name": "has_leather_alcantara",
+                "target_name": "has_leather_alcantara",
+                "source_type": "String",
+                "target_type": "Boolean"
             },
             {
-                "field_name": "has_leather_upholstery",
-                "field_type": "String"
+                "source_name": "has_leather_upholstery",
+                "target_name": "has_leather_upholstery",
+                "source_type": "String",
+                "target_type": "Boolean"
             }
         ]
     }

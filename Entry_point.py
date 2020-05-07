@@ -15,15 +15,16 @@ def main():
     vehicle_metadata = file_metadata["vehicle"]
     load_temp_table(spark_session,vehicle_metadata)
     
-    result_dataframe = spark_session.sql("""
+    staged_vehicle_dataframe = spark_session.sql("""
         SELECT
             *,
-            current_timestamp() AS CREATED_AT,
-            "SOURCE_LOAD_PIPELINE_VEHICLE" AS CREATED_BY
+            CURRENT_TIMESTAMP() AS AUDIT_CREATED_AT,
+            "STAGING_STEP_VEHICLE" AS AUDIT_CREATED_BY
         FROM
             Source_Vehicle
     """)
-    print_log(result_dataframe.take(1))
+    staged_vehicle_dataframe.createTempView("Staged_Vehicle")
+    standardize_vehicle_data(spark_session,vehicle_metadata)
 
 
 def print_log(statement):
@@ -86,8 +87,8 @@ def get_vehicle_file_schema(schema_fields):
     for schema_field in schema_fields:
         struct_fields.append(
             StructField(
-                schema_field['field_name'],
-                get_field_type(schema_field['field_name'])
+                schema_field["source_name"],
+                get_field_type(schema_field["source_type"])
             )
         )
     return StructType(struct_fields)
@@ -97,16 +98,19 @@ def get_field_type(field_type_string):
         return StringType()
     elif field_type_string =="Boolean":
         return BooleanType()
+    
+    # TODO: Current source file has all the columns in string tpye but more data type conversion are to be added.
+    # Reference: https://spark.apache.org/docs/latest/sql-reference.html#data-types
     else:
         return StringType()
 
 
-def download_data(target_path, source_file_list):
-    if not os.path.exists("./data/"):
-        os.makedirs("./data/")
+def download_data(target_path_prefix, source_file_list):
+    if not os.path.exists(target_path_prefix):
+        os.makedirs(target_path_prefix)
     
     for source_url in source_file_list:
-        target_path = target_path + source_url[source_url.rfind("/"):]
+        target_path = target_path_prefix + source_url[source_url.rfind("/"):]
         print_log("[START] Download file:" + target_path)
         download_file(source_url, target_path)
         print_log("[END] Download file:" + target_path)
@@ -114,7 +118,100 @@ def download_data(target_path, source_file_list):
 
 def download_file(source_url, target_path):
     source_file_ref = requests.get(source_url)
-    open(target_path, 'wb').write(source_file_ref.content)
+    open(target_path, "wb").write(source_file_ref.content)
+
+
+def standardize_vehicle_data(spark_session, vehicle_metadata):
+    vehicle_schema_fields = vehicle_metadata["source_schema"]
+    data_type_conversion_select_list = \
+        list(
+            map(
+                lambda field: get_column_cast_expression(field) + " AS " + field["target_name"],
+                vehicle_schema_fields
+            )
+        )
+    standard_dq_check_expr_list = \
+        list(
+            map(
+                lambda field: get_column_dq_check_expr(field),
+                vehicle_schema_fields
+            )
+        )
+    standard_dq_check_expr_list = \
+        list(
+            filter(
+                lambda exp: len(exp) > 0,
+                standard_dq_check_expr_list
+            )
+        )
+    sql = """
+            SELECT
+                """ + ",\n\t".join(data_type_conversion_select_list) + """,
+                """ + " AND ".join(standard_dq_check_expr_list) + """ AS DQ_STD_TYPE_CHECK,
+                """ + get_non_negative_check_expr() + """ AS DQ_NON_NEGATIVE_CHECK,
+                CURRENT_TIMESTAMP() AS AUDIT_CREATED_AT,
+                'STANDARDIZATION_STEP_VEHICLE' AS AUDIT_CREATED_BY
+            FROM
+                Staged_Vehicle
+        """
+    print(sql)
+    standardized_vehicle_dataframe = spark_session.sql(sql)
+    
+    print_log(standardized_vehicle_dataframe.take(1))
+
+
+def get_non_negative_check_expr():
+    field_names = [
+        "engine_capacity",
+        "engine_power",
+        "cylindercapacity",
+        "horsepower",
+        "number_of_doors",
+        "number_of_seats",
+        "milage",
+        "age"
+    ]
+    return " AND ".join(
+        list(
+            map(
+                lambda field_name: f'({field_name} IS NULL OR {field_name} >= 0)',
+                field_names
+            )
+        )
+    )
+
+
+def get_column_cast_expression(field):
+    field_name = field["source_name"]
+    target_type = field["target_type"].lower()
+    if (target_type == "string"):
+        return f'TRIM({field_name})'
+    elif (target_type == "date"):
+        return f'CAST({field_name} AS DATE)'
+    elif (target_type == "integer"):
+        return f'CAST({field_name} AS INTEGER)'
+    elif (target_type == "double"):
+        return f'CAST({field_name} AS DOUBLE)'
+    elif (target_type == "boolean"):
+        return f'CAST({field_name} AS BOOLEAN)'
+    else:
+        return field["source_name"]
+
+
+def get_column_dq_check_expr(field):
+    field_name = field["source_name"]
+    target_type = field["target_type"].lower()
+    
+    # if (target_type == "date"):
+    #     return "(TRIM(" + field_name + ") RLIKE " + "'[12]\\\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\\\d|3[01])' OR " + field_name + " IS NULL)"
+    if (target_type == "integer"):
+        return "(TRIM(" + field_name + ") RLIKE " + "'^\\\\d+$' OR " + field_name + " IS NULL)"
+    elif (target_type == "double"):
+        return "(TRIM(" + field_name + ") RLIKE " + "'^\\\\d*(\\\\.\\\\d+)?$' OR " + field_name + " IS NULL)"
+    elif (target_type == "boolean"):
+        return "(LOWER(TRIM(" + field_name + ")) IN " + "('true','t','1','yes','y','false','f','0','no','n') OR " + field_name + " IS NULL)"
+    else:
+        return ""
 
 
 if __name__ == "__main__":
