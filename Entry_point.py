@@ -202,9 +202,9 @@ def get_column_dq_check_expr(field):
     field_name = field["source_name"]
     target_type = field["target_type"].lower()
     
-    # if (target_type == "date"):
-    #     return "(TRIM(" + field_name + ") RLIKE " + "'[12]\\\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\\\d|3[01])' OR " + field_name + " IS NULL)"
-    if (target_type == "integer"):
+    if (target_type == "date"):
+        return "(TRIM(" + field_name + ") RLIKE " + "'[12]\\\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\\\d|3[01])' OR " + field_name + " IS NULL)"
+    elif (target_type == "integer"):
         return "(TRIM(" + field_name + ") RLIKE " + "'^\\\\d+$' OR " + field_name + " IS NULL)"
     elif (target_type == "double"):
         return "(TRIM(" + field_name + ") RLIKE " + "'^\\\\d*(\\\\.\\\\d+)?$' OR " + field_name + " IS NULL)"
