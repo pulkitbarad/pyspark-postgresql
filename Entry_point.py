@@ -13,18 +13,13 @@ def main():
     
     file_metadata = json.load(open("/artifacts/metadata/vehicle.json"))
     vehicle_metadata = file_metadata["vehicle"]
-    load_temp_table(spark_session,vehicle_metadata)
-    
-    staged_vehicle_dataframe = spark_session.sql("""
-        SELECT
-            *,
-            CURRENT_TIMESTAMP() AS AUDIT_CREATED_AT,
-            "STAGING_STEP_VEHICLE" AS AUDIT_CREATED_BY
-        FROM
-            Source_Vehicle
-    """)
-    staged_vehicle_dataframe.createTempView("Staged_Vehicle")
-    standardize_vehicle_data(spark_session,vehicle_metadata)
+    # load_temp_table(spark_session,vehicle_metadata)
+    # standardize_vehicle_data(spark_session,vehicle_metadata)
+    # aggregate_vehicle_data(spark_session,vehicle_metadata)
+    jdbcDF2 = spark_session.read.parquet(vehicle_metadata["data_dir"]+"Staged_Vehicle")
+    spark_session.sql("SELECT 1, 'ab'").write \
+        .jdbc("jdbc:postgresql-server:172.21.0.1:5432", "my_schema.some_table",
+              properties={"driver":"org.postgresql.Driver","user": "my_user", "password": "EncryptMe111"})
 
 
 def print_log(statement):
@@ -60,13 +55,40 @@ def get_spark_session(application_name):
 
 
 def load_temp_table(spark_session, source_metadata):
-    target_path_prefix = source_metadata["target_path_prefix"]
+    target_path_prefix = source_metadata["temp_dir"]
     source_file_list = source_metadata["source_file_list"]
     download_data(target_path_prefix, source_file_list)
     
-    schema_fields = source_metadata["source_schema"]
-    vehicle_dataframe = get_vehicle_files_df(spark_session, target_path_prefix + "vehicle.csv000*", schema_fields)
-    vehicle_dataframe.createTempView("Source_Vehicle")
+    saveQueryResults(
+        spark_session=spark_session,
+        data_dir=source_metadata["data_dir"],
+        dataframe=get_vehicle_files_df(
+                    spark_session=spark_session,
+                    source_file_path=target_path_prefix + "vehicle.csv000*",
+                    schema_fields=source_metadata["source_schema"]
+                ),
+        sql=None,
+        table_name="Source_Vehicle",
+        partition_column=None,
+        append_mode="append"
+    )
+
+    saveQueryResults(
+        spark_session=spark_session,
+        data_dir=source_metadata["data_dir"],
+        dataframe=None,
+        sql="""
+            SELECT
+                *,
+                CURRENT_TIMESTAMP() AS AUDIT_CREATED_AT,
+                "STAGING_STEP_VEHICLE" AS AUDIT_CREATED_BY
+            FROM
+                Source_Vehicle
+        """,
+        table_name="Staged_Vehicle",
+        partition_column=None,
+        append_mode="append"
+    )
 
 
 def get_vehicle_files_df(spark_session, source_file_path, schema_fields):
@@ -110,7 +132,7 @@ def download_data(target_path_prefix, source_file_list):
         os.makedirs(target_path_prefix)
     
     for source_url in source_file_list:
-        target_path = target_path_prefix + source_url[source_url.rfind("/"):]
+        target_path = target_path_prefix + source_url[source_url.rfind("/")+1:]
         print_log("[START] Download file:" + target_path)
         download_file(source_url, target_path)
         print_log("[END] Download file:" + target_path)
@@ -119,6 +141,23 @@ def download_data(target_path_prefix, source_file_list):
 def download_file(source_url, target_path):
     source_file_ref = requests.get(source_url)
     open(target_path, "wb").write(source_file_ref.content)
+
+def saveQueryResults(spark_session,data_dir,dataframe,sql,table_name,partition_column,append_mode):
+
+    result_dataframe = None
+
+    if(dataframe !=None):
+        result_dataframe = dataframe
+    else:
+        result_dataframe = spark_session.sql(sql)
+
+    result_dataframe_writer = result_dataframe.write
+
+    if(partition_column != None):
+        print_log(f'Partitioning the table {table_name} by {partition_column} before saving.')
+        result_dataframe_writer.partitionBy(partition_column)
+
+    result_dataframe.write.saveAsTable(table_name,mode=append_mode,path=data_dir+table_name)
 
 
 def standardize_vehicle_data(spark_session, vehicle_metadata):
@@ -144,7 +183,12 @@ def standardize_vehicle_data(spark_session, vehicle_metadata):
                 standard_dq_check_expr_list
             )
         )
-    sql = """
+
+    saveQueryResults(
+        spark_session=spark_session,
+        data_dir=vehicle_metadata["data_dir"],
+        dataframe=None,
+        sql="""
             SELECT
                 """ + ",\n\t".join(data_type_conversion_select_list) + """,
                 """ + " AND ".join(standard_dq_check_expr_list) + """ AS DQ_STD_TYPE_CHECK,
@@ -153,11 +197,13 @@ def standardize_vehicle_data(spark_session, vehicle_metadata):
                 'STANDARDIZATION_STEP_VEHICLE' AS AUDIT_CREATED_BY
             FROM
                 Staged_Vehicle
-        """
-    print(sql)
-    standardized_vehicle_dataframe = spark_session.sql(sql)
-    
-    print_log(standardized_vehicle_dataframe.take(1))
+        """,
+        table_name="Standardized_Vehicle",
+        partition_column=None,
+        append_mode="append"
+    )
+
+    # print_log(standardized_vehicle_dataframe.show(5))
 
 
 def get_non_negative_check_expr():
@@ -212,6 +258,37 @@ def get_column_dq_check_expr(field):
         return "(LOWER(TRIM(" + field_name + ")) IN " + "('true','t','1','yes','y','false','f','0','no','n') OR " + field_name + " IS NULL)"
     else:
         return ""
+
+def aggregate_vehicle_data(spark_session,vehicle_metadata):
+    non_aggregated_columns = [
+        "make",
+        "build_year",
+        "price_class"
+    ]
+    
+    saveQueryResults(
+        spark_session=spark_session,
+        data_dir=vehicle_metadata["data_dir"],
+        dataframe=None,
+        sql="""
+            SELECT
+                COUNT(*) AS num_of_vehicles,
+                SUBSTRING(country, 3) as COUNTRY_CODE,
+                """ + ",\n\t\t".join(non_aggregated_columns) + """,
+                CURRENT_TIMESTAMP() AS AUDIT_CREATED_AT,
+                "AGGREGATION_STEP_VEHICLE" AS AUDIT_CREATED_BY
+            FROM
+                Standardized_Vehicle
+            GROUP BY
+                """ + ",\n\t\t".join(str(x) for x in range(2, len(non_aggregated_columns) + 4)) + """
+            ORDER BY
+               1 DESC,
+               4 DESC
+        """,
+        table_name="Aggregated_Vehicle",
+        partition_column="build_year",
+        append_mode="overwrite"
+    )
 
 
 if __name__ == "__main__":

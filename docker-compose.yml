@@ -1,5 +1,9 @@
 #docker run -v "$(pwd):/artifacts" godatadriven/pyspark /artifacts/Entry_Point.py
-
+#docker run --network app-tier -v "$(pwd):/artifacts" godatadriven/pyspark --driver-class-path /artifacts/utils/postgresql-42.2.12.jar --jars /artifacts/utils/postgresql-42.2.12.jar /artifacts/Entry_Point.py
+#docker run -it --rm --network app-tier bitnami/postgresql:latest psql -h 172.21.0.1 -U my_user
+#docker exec -it <container> bash
+#psql -d my_database -U my_user
+SELECT schema_name FROM information_schema.schemata
 version: '2'
 
 networks:
@@ -17,9 +21,9 @@ services:
       - POSTGRESQL_DATABASE=my_database
     networks:
       - app-tier
-
-  pyspark:
-    image: 'godatadriven/pyspark'
-    container_name: pyspark-server
-    networks:
-      - app-tier
+#
+#  pyspark:
+#    image: 'godatadriven/pyspark'
+#    container_name: pyspark-server
+#    networks:
+#      - app-tier
