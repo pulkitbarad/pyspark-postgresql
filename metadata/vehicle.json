@@ -3,7 +3,7 @@
         "update_strategy": "insert_append",
         "temp_dir": "./tmp/",
         "data_dir": "/artifacts/data/",
-        "source_file_list_actual": [
+        "source_file_list_bkp": [
             "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0001_part_00.gz",
             "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0002_part_00.gz",
             "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0003_part_00.gz",
@@ -13,6 +13,12 @@
             "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0007_part_00.gz"
         ],
         "source_file_list": [
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0001_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0002_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0003_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0004_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0005_part_00.gz",
+            "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0006_part_00.gz",
             "https://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0007_part_00.gz"
         ],
         "source_schema": [

@@ -34,27 +34,11 @@ def get_spark_session(application_name):
     spark_session = \
         SparkSession.builder \
             .appName(application_name) \
+            .config("spark.default.parallelism","6")\
+            .config("spark.driver.memory","8g")\
+            .config("spark.executor.memory","16g")\
             .getOrCreate()
-    
-    # [START] Accessing S3 files
-    #
-    #
-    # NOTE: AWS does not allow remote access to s3 files without aws credentials even if they are publicly accessible.
-    
-    # spark_context = spark_session.sparkContext
-    # spark_context.setSystemProperty("com.amazonaws.services.s3.enableV4", "true")
-    
-    # hadoop_conf = spark_context._jsc.hadoopConfiguration()
-    # hadoop_conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-    # hadoop_conf.set("com.amazonaws.services.s3.enableV4", "true")
-    # hadoop_conf.set("fs.s3a.access.key", "")
-    # hadoop_conf.set("fs.s3a.secret.key", "")
-    # hadoop_conf.set("fs.s3a.connection.maximum", "100000")
-    #
-    # src_rdd = sc.textFile("s3a://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0001_part_00.gz")
-    #
-    #
-    # [END] Accessing S3 files
+
     return spark_session
 
 
@@ -89,37 +73,32 @@ def load_temp_table(spark_session, source_metadata):
             FROM
                 Source_Vehicle
         """,
-        table_name="Staged_Vehicle_Temp",
+        table_name="Staged_Vehicle",
         partition_column=None,
         append_mode="append"
     )
 
-    save_query_results(
-        spark_session=spark_session,
-        data_dir=source_metadata["data_dir"],
-        dataframe=None,
-        sql="""
-            SELECT
-                *
-            FROM
-                Staged_Vehicle_Temp AS Outer_Src
-            WHERE
-                AUDIT_CREATED_AT = (
-                    SELECT
-                        MAX(AUDIT_CREATED_AT)
-                    FROM
-                        Staged_Vehicle_Temp AS Inner_Src
-                    WHERE
-                        Outer_Src.vehicle_id = Inner_Src.vehicle_id
-                )
-        """,
-        table_name="Staged_Vehicle",
-        partition_column=None,
-        append_mode="overwrite"
-    )
-
 
 def get_vehicle_files_df(spark_session, source_file_path, schema_fields):
+    # [START] Accessing S3 files
+    #
+    #
+    # NOTE: AWS does not allow remote access to s3 files directly through spark without aws credentials even if they are publicly accessible.
+    
+    # spark_context = spark_session.sparkContext
+    # spark_context.setSystemProperty("com.amazonaws.services.s3.enableV4", "true")
+    
+    # hadoop_conf = spark_context._jsc.hadoopConfiguration()
+    # hadoop_conf.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    # hadoop_conf.set("com.amazonaws.services.s3.enableV4", "true")
+    # hadoop_conf.set("fs.s3a.access.key", "")
+    # hadoop_conf.set("fs.s3a.secret.key", "")
+    # hadoop_conf.set("fs.s3a.connection.maximum", "100000")
+    #
+    # src_rdd = sc.textFile("s3a://s3-eu-west-1.amazonaws.com/carnext-data-engineering-assignment/test_data/vehicle.csv0001_part_00.gz")
+    #
+    #
+    # [END] Accessing S3 files
     print_log("[START] Loading following files to the temp table:" + str(source_file_path))
     source_df = spark_session \
         .read \
@@ -171,7 +150,8 @@ def download_file(source_url, target_path):
     open(target_path, "wb").write(source_file_ref.content)
 
 def save_query_results(spark_session, data_dir, dataframe, sql, table_name, partition_column, append_mode):
-
+    
+    #TODO: Combine main table and temp table logic into this one function instead of invoking it twice.
     result_dataframe = None
 
     if(dataframe !=None):
@@ -185,7 +165,7 @@ def save_query_results(spark_session, data_dir, dataframe, sql, table_name, part
         print_log(f'Partitioning the table {table_name} by {partition_column} before saving.')
         result_dataframe_writer.partitionBy(partition_column)
 
-    result_dataframe.write.mode(append_mode).saveAsTable(table_name,path=data_dir+table_name)
+    result_dataframe.coalesce(6).write.mode(append_mode).saveAsTable(table_name,path=data_dir+table_name)
 
 
 def standardize_vehicle_data(spark_session, vehicle_metadata):
@@ -226,34 +206,11 @@ def standardize_vehicle_data(spark_session, vehicle_metadata):
             FROM
                 Staged_Vehicle
         """,
-        table_name="Standardized_Vehicle_Temp",
+        table_name="Standardized_Vehicle",
         partition_column=None,
         append_mode="append"
     )
 
-    save_query_results(
-        spark_session=spark_session,
-        data_dir=vehicle_metadata["data_dir"],
-        dataframe=None,
-        sql="""
-            SELECT
-                *
-            FROM
-                Standardized_Vehicle_Temp AS Outer_Src
-            WHERE
-                AUDIT_CREATED_AT = (
-                    SELECT
-                        MAX(AUDIT_CREATED_AT)
-                    FROM
-                        Standardized_Vehicle_Temp AS Inner_Src
-                    WHERE
-                        Outer_Src.vehicle_id = Inner_Src.vehicle_id
-                )
-        """,
-        table_name="Standardized_Vehicle",
-        partition_column=None,
-        append_mode="overwrite"
-    )
 
     # print_log(standardized_vehicle_dataframe.show(5))
 
@@ -358,6 +315,7 @@ def demo_query_execution(spark_session,sql,vehicle_metadata):
         "Standardized_Vehicle"
     ]
 
+    #TODO: This is just a demo function; store the hive metastoe into persistent storage instead of reading the tables on every run.
     for table_name in table_list:
         saved_dataframe = spark_session.read.parquet(vehicle_metadata["data_dir"] + table_name)
         saved_dataframe.createTempView(table_name)

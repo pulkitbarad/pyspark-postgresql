@@ -1,7 +1,5 @@
-#docker run -v "$(pwd):/artifacts" godatadriven/pyspark /artifacts/Entry_Point.py
 #docker run --network "${PWD##*/}_app-tier" -v "$(pwd):/artifacts" godatadriven/pyspark --driver-class-path /artifacts/utils/postgresql-42.2.12.jar --jars /artifacts/utils/postgresql-42.2.12.jar /artifacts/Entry_Point.py
-#docker exec -it <container> bash
-#psql -d my_database -U my_user
+#docker exec -it <container> psql -d my_database -U my_user
 
 version: '2'
 
