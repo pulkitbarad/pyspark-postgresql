@@ -35,8 +35,8 @@ def get_spark_session(application_name):
         SparkSession.builder \
             .appName(application_name) \
             .config("spark.default.parallelism","6")\
-            .config("spark.driver.memory","8g")\
-            .config("spark.executor.memory","16g")\
+            .config("spark.driver.memory","4g")\
+            .config("spark.executor.memory","10g")\
             .getOrCreate()
 
     return spark_session
